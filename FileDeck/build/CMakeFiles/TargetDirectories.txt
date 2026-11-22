@@ -1,0 +1,3 @@
+C:/Users/suraj chaurasiya/Documents/CPP Projects/FileDeck/FileDeck/build/CMakeFiles/FileDeck.dir
+C:/Users/suraj chaurasiya/Documents/CPP Projects/FileDeck/FileDeck/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/suraj chaurasiya/Documents/CPP Projects/FileDeck/FileDeck/build/CMakeFiles/ZERO_CHECK.dir
