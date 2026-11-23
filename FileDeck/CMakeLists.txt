@@ -1,8 +1,12 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 4.0)
 project(FileDeck)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 add_executable(FileDeck
     src/main.cpp
+    src/files/files.cpp
     res/ImGui/gui.cpp
     res/ImGui/imgui.cpp
     res/ImGui/imgui_draw.cpp
@@ -12,5 +16,8 @@ add_executable(FileDeck
     res/ImGui/imgui_impl_dx11.cpp
 )
 
-target_include_directories(FileDeck PRIVATE res/ImGui)
+target_include_directories(
+    FileDeck PRIVATE res/ImGui
+    FileDeck PRIVATE src/files)
+
 target_link_libraries(FileDeck PRIVATE d3d11)

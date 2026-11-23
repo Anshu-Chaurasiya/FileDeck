@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "FileDeck.dir\\Debug\\files.obj",
+            "outputs": [
+                "C:\\Users\\suraj chaurasiya\\Documents\\CPP Projects\\FileDeck\\FileDeck\\build\\FileDeck.dir\\Debug\\vc145.pdb",
+                "FileDeck.dir\\Debug\\"
+            ],
+            "requires": []
+        }
+    ]
+}

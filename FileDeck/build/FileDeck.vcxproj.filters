@@ -4,6 +4,9 @@
     <ClCompile Include="C:\Users\suraj chaurasiya\Documents\CPP Projects\FileDeck\FileDeck\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\suraj chaurasiya\Documents\CPP Projects\FileDeck\FileDeck\src\files\files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\suraj chaurasiya\Documents\CPP Projects\FileDeck\FileDeck\res\ImGui\gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
