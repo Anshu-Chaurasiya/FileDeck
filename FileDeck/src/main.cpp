@@ -20,14 +20,59 @@ struct FileEntry {
     int type;
 };
 
-std::vector<FileEntry> cached_entries;
+inline static void ApplyStyle() {
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 2.0f;
+    style.ChildRounding = 2.0f;
+    style.FrameRounding = 2.0f;
+    style.GrabRounding = 2.0f;
+    style.WindowBorderSize = 1.0f;
+    style.FrameBorderSize = 1.0f;
+    style.WindowPadding = ImVec2(10.0f, 10.0f);
+    style.FramePadding = ImVec2(8.0f, 5.0f);
+    style.ItemSpacing = ImVec2(8.0f, 5.0f);
 
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_Text]                 = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
+    colors[ImGuiCol_TextDisabled]         = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    colors[ImGuiCol_WindowBg]             = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+    colors[ImGuiCol_ChildBg]              = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+    colors[ImGuiCol_PopupBg]              = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+    colors[ImGuiCol_Border]               = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+    colors[ImGuiCol_TitleBg]              = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]        = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+    colors[ImGuiCol_FrameBg]              = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered]       = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_FrameBgActive]        = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
+    colors[ImGuiCol_Button]               = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]        = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+    colors[ImGuiCol_ButtonActive]         = ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
+    colors[ImGuiCol_Header]               = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    colors[ImGuiCol_HeaderHovered]        = ImVec4(0.32f, 0.32f, 0.32f, 1.00f);
+    colors[ImGuiCol_HeaderActive]         = ImVec4(0.85f, 0.85f, 0.85f, 1.00f);
+    colors[ImGuiCol_Separator]            = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+    colors[ImGuiCol_TableHeaderBg]        = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[ImGuiCol_TableBorderStrong]    = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+    colors[ImGuiCol_TableBorderLight]     = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_TableRowBg]           = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+    colors[ImGuiCol_TableRowBgAlt]        = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.75f, 0.75f, 0.75f, 1.00f);
+}
+
+std::vector<FileEntry> cached_entries;
 inline static void FileView() {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowPos(ImVec2(5.0f, 138.0f), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(284.0f, 649.0f), ImGuiCond_Always);
     ImGui::Begin("Files View", nullptr, flags);
-    if (ImGui::Button("Downloads")) {
+    ImGui::PushFont(iconfont);
+    char icon = 'k';
+    ImGui::PopFont();
+    std::string title = icon + "Downloads";
+    if (ImGui::Button(title.c_str())) {
         selected_dir = "C:\\Users\\suraj chaurasiya\\Downloads";
     }
     ImGui::End();
@@ -59,7 +104,7 @@ inline static void MainPanel() {
         }
 
         if (cached_entries.empty()) {
-            ImGui::TextUnformatted("No files or directories found.");
+            ImGui::Text("No files or directories found.");
         } else {
             ImGuiListClipper clipper;
             clipper.Begin(static_cast<int>(cached_entries.size()));
@@ -67,10 +112,16 @@ inline static void MainPanel() {
             while (clipper.Step()) {
                 for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
                     const auto& entry = cached_entries[i];
+                    std::filesystem::path name = (std::filesystem::path) entry.filepath;
+                    name = name.filename();
                     std::string line = (entry.type == 0)
-                        ? std::format("Directory -> FilePath: {}", entry.filepath)
-                        : std::format("File -> FilePath: {}", entry.filepath);
-                    ImGui::TextUnformatted(line.c_str());
+                        ? std::format("Directory -> {}", name.string())
+                        : std::format("File -> {}", name.string());
+                    ImGui::GetStyle().ButtonTextAlign = ImVec2(0.0f, 0.8f);
+                    if (ImGui::Button(line.c_str(), ImVec2(950.0f, 20.0f))) {
+                        if (entry.type == 1) { continue; }
+                        selected_dir = loaded_dir.string() + "/\\" + name.string();
+                    }
                 }
             }
             clipper.End();
@@ -89,6 +140,11 @@ inline static void Properties() {
 }
 
 void MainGui() {
+    static bool styled = false;
+    if (!styled) {
+        ApplyStyle();
+        styled = true;
+    }
     FileView();
     Shortcuts();
     MainPanel();

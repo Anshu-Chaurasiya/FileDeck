@@ -18,6 +18,7 @@ add_executable(FileDeck
 
 target_include_directories(
     FileDeck PRIVATE res/ImGui
-    FileDeck PRIVATE src/files)
+    FileDeck PRIVATE src/files
+    FileDeck PRIVATE src/icon_fonts)
 
 target_link_libraries(FileDeck PRIVATE d3d11)

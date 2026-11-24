@@ -1,6 +1,7 @@
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
+#include <fonts.h>
 #include <d3d11.h>
 #include <tchar.h>
 #include <iostream>
@@ -34,10 +35,21 @@ void RunGUI(std::function<void()> func) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO(); (void) io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
     ImGui::StyleColorsDark();
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
+    ImFontConfig iconFont_cfg;
+    iconFont_cfg.PixelSnapH = true;
+    iconFont_cfg.FontDataOwnedByAtlas = false;
+
+    ImFont* iconfont = io.Fonts -> AddFontFromMemoryTTF(icon_font, iconfontsize, 16.0f, &iconFont_cfg);
+    
     bool done = false;
     while (!done) {
         MSG msg;

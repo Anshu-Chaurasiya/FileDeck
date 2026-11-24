@@ -1,6 +1,8 @@
 #include <unordered_map>
 #include <filesystem>
 #include <windows.h>
+#include <string>
+#include <iostream>
 
 static std::string WStringToUtf8(const std::wstring& wstr) {
     if (wstr.empty()) {
@@ -25,7 +27,7 @@ static std::string WStringToUtf8(const std::wstring& wstr) {
 
 std::unordered_map<std::string, int> getAllFiles(std::filesystem::path& filepath) {
     std::unordered_map<std::string, int> directories;
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(filepath)) {
+    for (const auto& entry : std::filesystem::directory_iterator(filepath)) {
         std::string path_str = WStringToUtf8(entry.path().wstring());
         if (entry.is_directory()) {
             directories[path_str] = 0; 
