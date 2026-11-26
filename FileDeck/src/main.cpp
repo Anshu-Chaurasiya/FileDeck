@@ -10,6 +10,11 @@
 #include <unordered_map>
 #include <filesystem>
 #include <format>
+#include <functional>
+
+std::filesystem::path downloads_folder_location;
+std::filesystem::path documents_folder_location;
+std::filesystem::path desktop_folder_location;
 
 std::filesystem::path selected_dir;
 std::filesystem::path loaded_dir;
@@ -18,6 +23,12 @@ std::unordered_map<std::string, int> cached_files;
 struct FileEntry {
     std::string filepath;
     int type;
+};
+
+enum selected_location {
+    Downloads,
+    Documents,
+    Desktop,
 };
 
 inline static void ApplyStyle() {
@@ -63,27 +74,116 @@ inline static void ApplyStyle() {
 }
 
 std::vector<FileEntry> cached_entries;
+
+bool current_center_window = false;
+inline static void CreateCenterWindow(const char* label, std::function<void()> func) {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImVec2 center = ImVec2(
+        viewport->Pos.x + viewport->Size.x * 0.5f,
+        viewport->Pos.y + viewport->Size.y * 0.5f
+    );
+
+    ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(500.0f, 300.0f), ImGuiCond_Appearing);
+
+    if (!current_center_window) {
+        if (ImGui::Begin(label, nullptr, flags)) {
+            func();
+        }
+        ImGui::End();
+    }
+    else {
+        std::cout << "Another Window is already Opened\n";
+    }
+}
+
 inline static void FileView() {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowPos(ImVec2(5.0f, 138.0f), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(284.0f, 649.0f), ImGuiCond_Always);
     ImGui::Begin("Files View", nullptr, flags);
-    ImGui::PushFont(iconfont);
-    char icon = 'k';
-    ImGui::PopFont();
-    std::string title = icon + "Downloads";
-    if (ImGui::Button(title.c_str())) {
-        selected_dir = "C:\\Users\\suraj chaurasiya\\Downloads";
+    if (ImGui::Button("Downloads")) {
+        if (!downloads_folder_location.empty()) {
+            selected_dir = downloads_folder_location;
+        }
+    }
+    if (ImGui::Button("Desktop")) {
+        if (!desktop_folder_location.empty()) {
+            selected_dir = desktop_folder_location;
+        }
+    }
+    if (ImGui::Button("Documents")) {
+        if (!documents_folder_location.empty()) {
+            selected_dir = documents_folder_location;   
+        }
     }
     ImGui::End();
 }
 
+selected_location location;
+std::string label;
+bool locations_pressed;
+char needed_folder[512] = "";
+std::string required_string;
 inline static void Shortcuts() {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowPos(ImVec2(2.0f, 5.0f), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(1531.0f, 131.0f), ImGuiCond_Always);
-    ImGui::Begin("Shortcuts", nullptr, flags);
-    
+    ImGui::Begin("FileDeck", nullptr, flags);
+    if (ImGui::BeginMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::BeginMenu("Configure Locations")) {
+                if (ImGui::MenuItem("Downloads Location")) {
+                    location = Downloads;
+                    label = "Configure Downloads Location";
+                    locations_pressed = true;
+                    current_center_window = false;
+                }
+                if (ImGui::MenuItem("Desktop Location")) {
+                    location = Desktop;
+                    label = "Configure Desktop Location";
+                    locations_pressed = true;
+                    current_center_window = false;
+                }
+                if (ImGui::MenuItem("Documents Location")) {
+                    location = Documents;
+                    label = "Configure Documents Location";
+                    locations_pressed = true;
+                    current_center_window = false;
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    if (locations_pressed) {
+        CreateCenterWindow(label.c_str(), [=] () {
+             ImGui::InputText("##NOTHING", needed_folder, IM_COUNTOF(needed_folder));
+             if (ImGui::Button("Done")) {
+                if (location == Downloads) {
+                    downloads_folder_location = needed_folder;
+                    locations_pressed = false;
+                    current_center_window = true;
+                    needed_folder[0] = '\0';
+                }
+                else if (location == Documents) {
+                    documents_folder_location = needed_folder;
+                    locations_pressed = false;
+                    current_center_window = true;
+                    needed_folder[0] = '\0';
+                }
+                else if (location == Desktop) {
+                    desktop_folder_location = needed_folder;
+                    locations_pressed = false;
+                    current_center_window = true;
+                    needed_folder[0] = '\0';
+                }
+            }
+        });
+    }
     ImGui::End();
 }
 
