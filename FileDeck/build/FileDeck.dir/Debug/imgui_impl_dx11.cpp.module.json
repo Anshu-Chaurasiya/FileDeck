@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "FileDeck.dir\\Debug\\imgui_impl_dx11.obj",
+            "outputs": [
+                "C:\\Users\\suraj chaurasiya\\Documents\\CPP Projects\\FileDeck\\FileDeck\\build\\FileDeck.dir\\Debug\\vc145.pdb",
+                "FileDeck.dir\\Debug\\"
+            ],
+            "requires": []
+        }
+    ]
+}

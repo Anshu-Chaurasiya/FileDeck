@@ -34,10 +34,11 @@ void RunGUI(std::function<void()> func) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+
     ImGui::StyleColorsDark();
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-
+    
     bool done = false;
     while (!done) {
         MSG msg;
