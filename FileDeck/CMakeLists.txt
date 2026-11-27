@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 add_executable(FileDeck
     src/main.cpp
     src/files/files.cpp
+    src/saves/saves.cpp
     res/ImGui/gui.cpp
     res/ImGui/imgui.cpp
     res/ImGui/imgui_draw.cpp
@@ -19,6 +20,6 @@ add_executable(FileDeck
 target_include_directories(
     FileDeck PRIVATE res/ImGui
     FileDeck PRIVATE src/files
-    FileDeck PRIVATE src/icon_fonts)
+    FileDeck PRIVATE src/saves)
 
 target_link_libraries(FileDeck PRIVATE d3d11)

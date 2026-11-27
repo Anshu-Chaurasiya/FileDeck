@@ -7,14 +7,19 @@
 #include <imgui_stdlib.h>
 #include <gui.h>
 #include <files.h>
+#include <saves.h>
 #include <unordered_map>
 #include <filesystem>
 #include <format>
 #include <functional>
+#include <utility>
 
 std::filesystem::path downloads_folder_location;
 std::filesystem::path documents_folder_location;
 std::filesystem::path desktop_folder_location;
+std::filesystem::path pictures_folder_location;
+std::filesystem::path videos_folder_location;
+std::filesystem::path music_folder_location;
 
 std::filesystem::path selected_dir;
 std::filesystem::path loaded_dir;
@@ -29,7 +34,36 @@ enum selected_location {
     Downloads,
     Documents,
     Desktop,
+    Pictures,
+    Videos,
+    Music
 };
+
+inline static void saveDataM() {
+    std::vector<std::string> data = {
+        downloads_folder_location.string(), 
+        documents_folder_location.string(), 
+        desktop_folder_location.string(),
+        pictures_folder_location.string(),
+        videos_folder_location.string(),
+        music_folder_location.string(),
+        loaded_dir.string(),
+    };
+    saveData(data);
+}
+
+inline static void fetchDataM() {
+    std::vector<std::string> data = fetchData();
+    if (!data.empty()) {
+        downloads_folder_location = data[0];
+        documents_folder_location = data[1];
+        desktop_folder_location = data[2];
+        pictures_folder_location = data[3];
+        videos_folder_location = data[4];
+        music_folder_location = data[5];
+        selected_dir = data[6];
+    }
+}
 
 inline static void ApplyStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -118,6 +152,21 @@ inline static void FileView() {
             selected_dir = documents_folder_location;   
         }
     }
+    if (ImGui::Button("Pictures")) {
+        if (!pictures_folder_location.empty()) {
+            selected_dir = pictures_folder_location;
+        }
+    }
+    if (ImGui::Button("Videos")) {
+        if (!videos_folder_location.empty()) {
+            selected_dir = videos_folder_location;
+        }
+    }
+    if (ImGui::Button("Music")) {
+        if (!music_folder_location.empty()) {
+            selected_dir = music_folder_location;
+        }
+    }
     ImGui::End();
 }
 
@@ -152,6 +201,24 @@ inline static void Shortcuts() {
                     locations_pressed = true;
                     current_center_window = false;
                 }
+                if (ImGui::MenuItem("Pictures Location")) {
+                    location = Pictures;
+                    label = "Configure Pictures Location";
+                    locations_pressed = true;
+                    current_center_window = false;
+                }
+                if (ImGui::MenuItem("Videos Location")) {
+                    location = Videos;
+                    label = "Configure Videos Location";
+                    locations_pressed = true;
+                    current_center_window = false;
+                }
+                if (ImGui::MenuItem("Music Location")) {
+                    location = Music;
+                    label = "Configure Music Location";
+                    locations_pressed = true;
+                    current_center_window = false;
+                }
                 ImGui::EndMenu();
             }
             ImGui::EndMenu();
@@ -165,24 +232,34 @@ inline static void Shortcuts() {
              if (ImGui::Button("Done")) {
                 if (location == Downloads) {
                     downloads_folder_location = needed_folder;
-                    locations_pressed = false;
-                    current_center_window = true;
-                    needed_folder[0] = '\0';
                 }
                 else if (location == Documents) {
                     documents_folder_location = needed_folder;
-                    locations_pressed = false;
-                    current_center_window = true;
-                    needed_folder[0] = '\0';
                 }
                 else if (location == Desktop) {
                     desktop_folder_location = needed_folder;
-                    locations_pressed = false;
-                    current_center_window = true;
-                    needed_folder[0] = '\0';
                 }
+                else if (location == Pictures) {
+                    pictures_folder_location = needed_folder;
+                }
+                else if (location == Videos) {
+                    videos_folder_location = needed_folder;
+                }
+                else if (location == Music) {
+                    music_folder_location = needed_folder;
+                }
+                locations_pressed = false;
+                current_center_window = true;
+                needed_folder[0] = '\0';
+                saveDataM();
             }
         });
+    }
+
+    if (ImGui::Button("> Back")) {
+        if (!selected_dir.empty()) {
+            selected_dir._Remove_filename_and_separator();
+        }
     }
     ImGui::End();
 }
@@ -201,6 +278,7 @@ inline static void MainPanel() {
                 cached_entries.push_back({ path, type });
             }
             loaded_dir = selected_dir;
+            saveDataM();
         }
 
         if (cached_entries.empty()) {
@@ -235,7 +313,26 @@ inline static void Properties() {
     ImGui::SetNextWindowPos(ImVec2(1269.0f, 138.0f), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(262.0f, 649.0f), ImGuiCond_Always);
     ImGui::Begin("Properties", nullptr, flags);
-    
+
+    if (!selected_dir.empty()) {
+        std::string name = "Name: " + selected_dir.filename().string();
+        std::string extenstion = "Extension: " + selected_dir.extension().string();
+        float size = std::filesystem::file_size(selected_dir);
+        std::string size_string = std::format("Size : {} bytes", size);
+        std::string file_path_string = std::format("File Path : {}", selected_dir.string());
+        ImGui::TextWrapped(name.c_str());
+        if (std::filesystem::is_directory(selected_dir)) {
+            ImGui::TextWrapped("Type : Folder");
+            ImGui::TextWrapped(file_path_string.c_str());
+            ImGui::TextWrapped(size_string.c_str());
+        }
+        else if (std::filesystem::is_regular_file(selected_dir)) {
+            ImGui::TextWrapped("Type : File");
+            ImGui::TextWrapped(file_path_string.c_str());
+            ImGui::TextWrapped(extenstion.c_str());
+            ImGui::TextWrapped(size_string.c_str());
+        }
+    }   
     ImGui::End();
 }
 
@@ -252,7 +349,8 @@ void MainGui() {
 }
 
 int main() {
-    try {
+    fetchDataM();
+    try{
         RunGUI(MainGui);
         return 0;
     }
